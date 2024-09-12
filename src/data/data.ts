@@ -1,4 +1,3 @@
-// Datos de inventario simulados
 export const inventoryData = [
     { name: 'Aceite', cantidad: 50 },
     { name: 'Filtros', cantidad: 30 },
@@ -7,7 +6,6 @@ export const inventoryData = [
     { name: 'Baterías', cantidad: 15 },
   ]
   
-  // Datos de ventas simulados
   export const salesData = [
     { name: 'Ene', ventas: 4000 },
     { name: 'Feb', ventas: 3000 },
@@ -17,6 +15,5 @@ export const inventoryData = [
     { name: 'Jun', ventas: 5500 },
   ]
   
-  // Colores utilizados en los gráficos de torta (Pie Chart)
   export const COLORS = ['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#2563EB']
   
