@@ -1,39 +1,68 @@
-import { Accordion } from '@reach/accordion';
-import '@reach/accordion/styles.css';
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { RouteConfig } from '../../router/RouteConfig';
 import { LogOut } from 'lucide-react';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import useSidebarItems from '../../hooks/Layout/useSidebarItems';
-import { routes } from '../../router/routes';
 
 interface SidebarProps {
-  className?: string;
-  sidebarOpen: boolean;
-  toggleSidebar: () => void;
+  routes: RouteConfig[];
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen }) => {
-  const sidebarItems = useSidebarItems({ routes });
+function Sidebar({ routes }: SidebarProps) {
+  const location = useLocation();
+  const [openMenus, setOpenMenus] = useState<string[]>([]);
+
+  const toggleMenu = (path: string) => {
+    setOpenMenus((prev) =>
+      prev.includes(path) ? prev.filter((item) => item !== path) : [...prev, path]
+    );
+  };
+
+  const renderSubMenu = (children: RouteConfig[], parentPath: string) => (
+    <ul className="pl-4">
+      {children.map((subRoute, index) => (
+        <li key={index} className="mb-2">
+          <Link
+            to={subRoute.path}
+            className={`block p-2 rounded ${location.pathname === subRoute.path ? 'bg-gray-600' : 'hover:bg-gray-600'}`}
+          >
+            {subRoute.name}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
-    <aside className={`flex flex-col h-screen ${sidebarOpen ? 'w-64' : 'w-0'} bg-blue-800 text-white overflow-y-auto transition-all duration-300 ease-in-out`}>
-      <div className="p-4">
-        <h2 className="text-2xl font-semibold">AutoMechanic</h2>
-      </div>
-      <Accordion collapsible className="flex-grow w-full">
-        {sidebarItems}
-      </Accordion>
-      <div className="p-4 bg-blue-800">
-        <Link className="flex items-center text-blue-300 hover:text-white" to="/logout">
-          <LogOut className="w-5 h-5 mr-3" />
-          Cerrar sesión
-        </Link>
-      </div>
-    </aside>
+    <div className="w-64 bg-gray-900 text-white h-full flex flex-col">
+      <div className="p-4 font-bold text-lg bg-gray-800">Mi Aplicación</div>
+      <ul className="mt-4 p-4">
+        {routes.map((route, index) => (
+          <li key={index} className="mb-4">
+            {route.children ? (
+              <>
+                <button
+                  onClick={() => toggleMenu(route.path)}
+                  className={`block p-2 rounded ${openMenus.includes(route.path) ? 'bg-gray-700' : 'hover:bg-gray-700'} w-full text-left`}
+                >
+                  {route.name}
+                </button>
+                {openMenus.includes(route.path) && renderSubMenu(route.children, route.path)}
+              </>
+            ) : (
+              <Link
+                to={route.path}
+                className={`block p-2 rounded ${location.pathname === route.path ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+              >
+                {route.name}
+              </Link>
+            )}
+          </li>
+        ))}
+      </ul>
+
+  
+    </div>
   );
-};
+}
 
 export default Sidebar;
-
-
-
