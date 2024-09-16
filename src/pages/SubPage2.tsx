@@ -1,3 +1,5 @@
+import UserForm from "../componets/User/UserForm";
+
 function SubPage2() {
     return (
       <div className="bg-white p-6 rounded-lg shadow-md">
