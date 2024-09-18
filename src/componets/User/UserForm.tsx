@@ -1,169 +1,298 @@
-import { useState } from "react";
+import { useFormik } from 'formik';
 
+import { UserFormSchema } from '../../Schemas/Users/usersSchema';
+import { UserPost } from '../../types/User/UserCreateType';
+import { PostUsers } from '../../services/UserService/UserPotsServices';
+import { useUserFormStore } from '../../store/User/UserFormStore';
+import { useUserFormData } from '../../hooks/User/useUserForm';
 
 export default function UserForm() {
-  const [user, setUser] = useState({
-    typeOfIdentification: { name: "" },
-    identificationNumber: "",
-    firstName: "",
-    middleName: "",
-    firstLastName: "",
-    secondLastName: "",
-    phoneNumber: "",
-    email: "",
-    genre: { genre: "" },
-    role: { typeOfRole: "" },
+  // Cargar datos usando el hook personalizado
+  useUserFormData();
+
+  // Acceder a los datos desde el store
+  const { roles, typeOfIdentifications, typeOfGenders } = useUserFormStore();
+
+  // Log de datos del store
+  console.log('Roles:', roles);
+  console.log('Tipos de Identificación:', typeOfIdentifications);
+  console.log('Géneros:', typeOfGenders);
+
+  // Configurar Formik para el manejo del formulario
+  const formik = useFormik({
+    initialValues: {
+      typeOfIdentification: '',
+      identificationNumber: '',
+      firstName: '',
+      middleName: '',
+      firstLastName: '',
+      secondLastName: '',
+      phoneNumber: '',
+      email: '',
+      genre: '',
+      typeOfRole: '',
+      password: ''
+    },
+    validationSchema: UserFormSchema,
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        const userRequest: UserPost = {
+          id: 0,
+          typeOfIdentificationId: Number(values.typeOfIdentification),
+          identificationNumber: values.identificationNumber,
+          firstName: values.firstName,
+          middleName: values.middleName,
+          firstLastName: values.firstLastName,
+          secondLastName: values.secondLastName,
+          phoneNumber: values.phoneNumber,
+          email: values.email,
+          genre: Number(values.genre),
+          role: Number(values.typeOfRole),
+          password: values.password
+        };
+
+
+        const response = await PostUsers(userRequest);
+
+
+        alert('Usuario registrado exitosamente');
+        resetForm();
+
+      } catch (error: any) {
+        alert(`Hubo un problema al registrar el usuario: ${error.message}`);
+      }
+    },
+
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUser((prevUser) => ({ ...prevUser, [name]: value }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setUser((prevUser) => ({ ...prevUser, [name]: { [name]: value } }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(user);
-    // Aquí puedes agregar la lógica para enviar los datos del formulario
-  };
+  // Clases para los estilos
+  const inputClasses = "w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
+  const labelClasses = "block mb-2 text-sm font-medium text-gray-700";
+  const selectClasses = "w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white";
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Sub Página 2</h2>
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-4">
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        <h2 className="text-2xl font-bold mb-4">Página 1</h2>
-
-        <div>
-          <label htmlFor="typeOfIdentification">Tipo de Identificación</label>
-          <select
-            onVolumeChange={(value : any) =>
-              handleSelectChange("typeOfIdentification", value)
-            }
-          >
-            <select>
-              <select/>
+      <h2 className="text-2xl font-bold mb-4 text-gray-800">Registro de Usuarios</h2>
+      <form onSubmit={formik.handleSubmit}>
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          {/* Tipo de Identificación */}
+          <div>
+            <label htmlFor="typeOfIdentification" className={labelClasses}>Tipo de Identificación</label>
+            <select
+              id="typeOfIdentification"
+              name="typeOfIdentification"
+              value={formik.values.typeOfIdentification}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={selectClasses}
+              required
+            >
+              <option value="">Seleccione Tipo de Documento</option>
+              {typeOfIdentifications.map((type) => (
+                <option key={type.id} value={type.id}>{type.name}</option>
+              ))}
             </select>
-            <select>
-              <select value="dni">DNI</select>
-              <select value="passport">Pasaporte</select>
-              <select value="other">Otro</select>
+            {formik.touched.typeOfIdentification && formik.errors.typeOfIdentification && (
+              <div className="text-red-500 text-sm">{formik.errors.typeOfIdentification}</div>
+            )}
+          </div>
+
+          {/* Número de Identificación */}
+          <div>
+            <label htmlFor="identificationNumber" className={labelClasses}>Número de Identificación</label>
+            <input
+              type="text"
+              id="identificationNumber"
+              name="identificationNumber"
+              value={formik.values.identificationNumber}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={inputClasses}
+              required
+            />
+            {formik.touched.identificationNumber && formik.errors.identificationNumber && (
+              <div className="text-red-500 text-sm">{formik.errors.identificationNumber}</div>
+            )}
+          </div>
+
+          {/* Primer Nombre */}
+          <div>
+            <label htmlFor="firstName" className={labelClasses}>Primer Nombre</label>
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              value={formik.values.firstName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={inputClasses}
+              required
+            />
+            {formik.touched.firstName && formik.errors.firstName && (
+              <div className="text-red-500 text-sm">{formik.errors.firstName}</div>
+            )}
+          </div>
+
+          {/* Segundo Nombre */}
+          <div>
+            <label htmlFor="middleName" className={labelClasses}>Segundo Nombre</label>
+            <input
+              type="text"
+              id="middleName"
+              name="middleName"
+              value={formik.values.middleName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={inputClasses}
+            />
+            {formik.touched.middleName && formik.errors.middleName && (
+              <div className="text-red-500 text-sm">{formik.errors.middleName}</div>
+            )}
+          </div>
+
+          {/* Primer Apellido */}
+          <div>
+            <label htmlFor="firstLastName" className={labelClasses}>Primer Apellido</label>
+            <input
+              type="text"
+              id="firstLastName"
+              name="firstLastName"
+              value={formik.values.firstLastName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={inputClasses}
+              required
+            />
+            {formik.touched.firstLastName && formik.errors.firstLastName && (
+              <div className="text-red-500 text-sm">{formik.errors.firstLastName}</div>
+            )}
+          </div>
+
+          {/* Segundo Apellido */}
+          <div>
+            <label htmlFor="secondLastName" className={labelClasses}>Segundo Apellido</label>
+            <input
+              type="text"
+              id="secondLastName"
+              name="secondLastName"
+              value={formik.values.secondLastName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={inputClasses}
+            />
+            {formik.touched.secondLastName && formik.errors.secondLastName && (
+              <div className="text-red-500 text-sm">{formik.errors.secondLastName}</div>
+            )}
+          </div>
+
+          {/* Número de Teléfono */}
+          <div>
+            <label htmlFor="phoneNumber" className={labelClasses}>Número de Teléfono</label>
+            <input
+              type="tel"
+              id="phoneNumber"
+              name="phoneNumber"
+              value={formik.values.phoneNumber}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={inputClasses}
+              required
+              pattern="[0-9]{10}"
+              title="Ingrese un número de teléfono válido de 10 dígitos"
+            />
+            {formik.touched.phoneNumber && formik.errors.phoneNumber && (
+              <div className="text-red-500 text-sm">{formik.errors.phoneNumber}</div>
+            )}
+          </div>
+
+          {/* Correo Electrónico */}
+          <div>
+            <label htmlFor="email" className={labelClasses}>Correo Electrónico</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={inputClasses}
+              required
+            />
+            {formik.touched.email && formik.errors.email && (
+              <div className="text-red-500 text-sm">{formik.errors.email}</div>
+            )}
+          </div>
+
+          {/* Género */}
+          <div>
+            <label htmlFor="genre" className={labelClasses}>Género</label>
+            <select
+              id="genre"
+              name="genre"
+              value={formik.values.genre}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={selectClasses}
+              required
+            >
+              <option value="">Seleccione Género</option>
+              {typeOfGenders.map((type) => (
+                <option key={type.id} value={type.id}>{type.genre}</option>
+              ))}
             </select>
-          </select>
-        </div>
+            {formik.touched.genre && formik.errors.genre && (
+              <div className="text-red-500 text-sm">{formik.errors.genre}</div>
+            )}
+          </div>
 
-        <div>
-          <label htmlFor="identificationNumber">Número de Identificación</label>
-          <input
-            id="identificationNumber"
-            name="identificationNumber"
-            value={user.identificationNumber}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="firstName">Primer Nombre</label>
-          <input
-            id="firstName"
-            name="firstName"
-            value={user.firstName}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="middleName">Segundo Nombre</label>
-          <input
-            id="middleName"
-            name="middleName"
-            value={user.middleName}
-            onChange={handleInputChange}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="firstLastName">Primer Apellido</label>
-          <input
-            id="firstLastName"
-            name="firstLastName"
-            value={user.firstLastName}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="secondLastName">Segundo Apellido</label>
-          <input
-            id="secondLastName"
-            name="secondLastName"
-            value={user.secondLastName}
-            onChange={handleInputChange}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="phoneNumber">Número de Teléfono</label>
-          <input
-            id="phoneNumber"
-            name="phoneNumber"
-            value={user.phoneNumber}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="email">Correo Electrónico</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={user.email}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div>
-          <label htmlFor="genre">Género</label>
-          <select onVolumeChange={(value : any) => handleSelectChange("genre", value)}>
-            <select>
-              <select />
+          {/* Rol */}
+          <div>
+            <label htmlFor="typeOfRole" className={labelClasses}>Rol</label>
+            <select
+              id="typeOfRole"
+              name="typeOfRole"
+              value={formik.values.typeOfRole}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={selectClasses}
+              required
+            >
+              <option value="">Seleccione Rol</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>{role.typeOfRole}</option>
+              ))}
             </select>
-            <select>
-              <select value="male">Masculino</select>
-              <select value="female">Femenino</select>
-              <select value="other">Otro</select>
-            </select>
-          </select>
+            {formik.touched.typeOfRole && formik.errors.typeOfRole && (
+              <div className="text-red-500 text-sm">{formik.errors.typeOfRole}</div>
+            )}
+          </div>
+
+          {/* Contraseña */}
+          <div>
+            <label htmlFor="password" className={labelClasses}>Contraseña</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={inputClasses}
+              required
+            />
+            {formik.touched.password && formik.errors.password && (
+              <div className="text-red-500 text-sm">{formik.errors.password}</div>
+            )}
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="role">Rol</label>
-          <select onVolumeChange={(value : any) => handleSelectChange("role", value)}>
-            <select>
-              <select  />
-            </select>
-            <select>
-              <select value="admin">Administrador</select>
-              <select value="user">Usuario</select>
-              <select value="guest">Invitado</select>
-            </select>
-          </select>
-        </div>
-      </div>
-
-      <button type="submit" className="w-full">
-        Enviar
-      </button>
-    </form>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:shadow-outline transition duration-300"
+        >
+          Registrar Usuario
+        </button>
+      </form>
     </div>
   );
 }
