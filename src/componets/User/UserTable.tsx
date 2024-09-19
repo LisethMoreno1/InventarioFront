@@ -1,11 +1,9 @@
 import { EyeIcon, PencilIcon, SearchIcon, ToggleLeft, ToggleRight } from 'lucide-react';
 import { useState } from 'react';
 import { useUsers } from '../../hooks/User/useUsers';
+import { deleteUsers } from '../../services/UserService/UserDeleteServices';
 import { UserGet } from '../../types/User/UserType';
 import UserModal from './UserModal';
-import EditUser from './UserEdit';
-import { UserPost } from '../../types/User/UserCreateType';
-import { adaptUserGetToUserPost } from '../../utils/userUtils';
 
 
 
@@ -21,33 +19,35 @@ const UserTable: React.FC = () => {
     handleUsersPerPageChange,
     totalPages,
     currentPage,
+
   } = useUsers();
 
   const [selectedUser, setSelectedUser] = useState<UserGet | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewing, setIsViewing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [loadingq, setLoading] = useState(false);
 
   const typeOfIdentificationId = 1; // Proporcionar el valor real
   const genreId = 1; // Proporcionar el valor real
   const roleId = 1; // Proporcionar el valor real
 
   /* EDITAR USUARIO */
-  const handleEditClick = (user: UserGet) => {
-    const userPost = adaptUserGetToUserPost(user);
-    setSelectedUser(userPost);
-    setIsModalOpen(true);
-  };
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedUser(null);
-  };
-
-  const handleUserUpdate = (updatedUser: UserPost) => {
-    // Lógica para manejar la actualización del usuario, si es necesario
-    console.log('User updated:', updatedUser);
-    handleCloseModal(); // Cierra el modal después de la actualización
-  };
+  /*   const handleEditClick = (user: UserGet) => {
+      const userPost = adaptUserGetToUserPost(user);
+      setSelectedUser(userPost);
+      setIsModalOpen(true);
+    };
+    const handleCloseModal = () => {
+      setIsModalOpen(false);
+      setSelectedUser(null);
+    };
+  
+    const handleUserUpdate = (updatedUser: UserPost) => {
+      // Lógica para manejar la actualización del usuario, si es necesario
+      console.log('User updated:', updatedUser);
+      handleCloseModal(); // Cierra el modal después de la actualización
+    }; */
 
   /*  VER DETALLES
    */
@@ -65,8 +65,19 @@ const UserTable: React.FC = () => {
     setIsEditing(false);
     setSelectedUser(null);
   };
+  const toggleUserStatus = async (userId: string, isActive: boolean) => {
+    setLoading(true); 
+    try {
+      const response = await deleteUsers(userId, isActive ? 0 : 1);
+      console.log('Usuario actualizado con éxito:', response);
 
-
+    } catch (error) {
+      console.error('Error al actualizar el usuario:', error);
+    } finally {
+      setLoading(false);  
+    }
+  };
+  
   const user: UserGet[] = [];
 
   if (loading) {
@@ -169,18 +180,27 @@ const UserTable: React.FC = () => {
                         <EyeIcon size={20} />
                       </button>
                       <button
-                        onClick={() => handleEditClick(user)} // Asegúrate de tener el objeto user aquí
-                        className="text-green-600 hover:text-green-900 mx-1"
+/*                         onClick={() => handleEditClick(user)} // Asegúrate de tener el objeto user aquí
+ */                        className="text-green-600 hover:text-green-900 mx-1"
                       >
                         <PencilIcon size={16} />
                       </button>
                       <button
-                        /* onClick={() => toggleUserStatus(user.id)} */
+                        onClick={() => toggleUserStatus(user.identificationNumber?.toString() || '0', user.isActive ?? false)}
                         className={`${user.isActive ? 'text-green-600 hover:text-green-900' : 'text-red-600 hover:text-red-900'} transition-colors duration-200`}
                         title={user.isActive ? 'Desactivar' : 'Activar'}
+                        disabled={loading} // Deshabilitar el botón mientras se carga
                       >
-                        {user.isActive ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
+                        {loading ? (
+                          <span>Cargando...</span>
+                        ) : (
+                          user.isActive ? <ToggleRight size={16} /> : <ToggleLeft size={16} />
+                        )}
                       </button>
+
+
+
+
                     </td>
                   </tr>
                 ))}
@@ -195,13 +215,13 @@ const UserTable: React.FC = () => {
             )}
 
             {/* Mostrar el modal si isModalOpen es verdadero */}
-            {isModalOpen && selectedUser && (
+            {/*   {isModalOpen && selectedUser && (
               <EditUser
                 user={selectedUser}
                 onClose={handleCloseModal}
                 onUpdate={handleUserUpdate}
               />
-            )}
+            )} */}
             <div className="px-5 py-3 bg-gray-200 flex items-center justify-between">
               <div className="text-sm">
                 <span className="font-semibold">Total usuarios: {users.length}</span>
