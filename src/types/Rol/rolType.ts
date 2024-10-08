@@ -1,7 +1,5 @@
 export interface RolesType {
-    id: number
-    typeOfRole: string
-
+  id?: number;
+  typeOfRole: string;
+  description: string;
 }
-
-
