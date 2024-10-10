@@ -1,81 +1,78 @@
-import { PencilIcon, SearchIcon, ToggleLeft, ToggleRight } from "lucide-react";
 import { useMemo, useState } from "react";
-import useRoles from "../../hooks/Rol/useRolForm";
-import { deleteRoles } from "../../services/RolesService/RolesDeleteServices";
-import RolEdit from "./RolEdit";
+import useDepartment from "../../hooks/Department/useDepartment";
+import { PencilIcon, SearchIcon, ToggleLeft, ToggleRight } from "lucide-react";
+import { deleteDepartments } from "../../services/DepartmentService/departmentDeleteService";
 
-const RolTable: React.FC = () => {
-  const { roles, loading, error } = useRoles();
+const DepartmentsTable: React.FC = () => {
+  const { departments, loading, error } = useDepartment();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [rolesPerPage, setRolesPerPage] = useState(10);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [roleToEdit, setRoleToEdit] = useState<any>(null);
-
-  const filteredRoles = useMemo(() => {
-    return roles.filter(
-      (role) =>
-        role.typeOfRole.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        role.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [roles, searchTerm]);
-
-  const rolesToDisplay = useMemo(() => {
-    return filteredRoles.slice(
-      (currentPage - 1) * rolesPerPage,
-      currentPage * rolesPerPage
-    );
-  }, [filteredRoles, currentPage, rolesPerPage]);
+  const [departmentsPerPage, setDepartmentsPerPage] = useState(10);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1);
+    console.log("Término de búsqueda actualizado:", e.target.value);
   };
 
-  const handleRolesPerPageChange = (
+  const filteredDepartments = useMemo(() => {
+    const filtered = departments.filter(
+      (department) =>
+        department.Department
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        department.codeDepartment
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    );
+    console.log("Departamentos filtrados:", filtered);
+    return filtered;
+  }, [departments, searchTerm]);
+
+  const departmentsToDisplay = useMemo(() => {
+    const display = filteredDepartments.slice(
+      (currentPage - 1) * departmentsPerPage,
+      currentPage * departmentsPerPage
+    );
+    console.log("Departamentos a mostrar:", display);
+    return display;
+  }, [filteredDepartments, currentPage, departmentsPerPage]);
+
+  const handleDepartmentsPerPageChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    setRolesPerPage(Number(e.target.value));
+    setDepartmentsPerPage(Number(e.target.value));
     setCurrentPage(1);
-  };
-
-  const toggleRolStatus = async (id: number) => {
-    try {
-      const response = await deleteRoles(id);
-      console.log("Rol eliminado con éxito:", response);
-    } catch (error) {
-      console.error("Error al eliminar el rol:", error);
-    }
+    console.log("Departamentos por página actualizado:", e.target.value);
   };
 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+    console.log("Página actualizada:", pageNumber);
   };
 
-  const openEditModal = (role: any) => {
-    setRoleToEdit(role);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const saveRole = (updatedRole: id) => {
-    console.log("Rol actualizado:", updatedRole);
-    closeModal();
+  const toggleDepartmentsStatus = async (id: number) => {
+    try {
+      const response = await deleteDepartments(id);
+      console.log("Departamento eliminado con éxito:", response);
+    } catch (error) {
+      console.error("Error al eliminar el Departamento:", error);
+    }
   };
 
   if (loading) {
-    return <div className="loading">Cargando roles...</div>;
+    console.log("Cargando departamentos...");
+    return <div className="loading">Cargando Departamento...</div>;
   }
 
   if (error) {
+    console.error("Error al cargar departamentos:", error);
     return <div className="error">{`Error: ${error}`}</div>;
   }
 
-  if (roles.length === 0) {
-    return <div>No se encontraron roles</div>;
+  if (departments.length === 0) {
+    console.log("No se encontraron departamentos.");
+    return <div>No se encontraron departamentos</div>;
   }
 
   return (
@@ -83,7 +80,7 @@ const RolTable: React.FC = () => {
       <div className="py-8">
         <div className="flex flex-row justify-between w-full mb-1 sm:mb-0">
           <h2 className="text-2xl leading-tight font-bold text-gray-900">
-            Roles Registrados
+            Departamentos Registrados
           </h2>
           <div className="text-end">
             <form className="flex flex-col md:flex-row w-3/4 md:w-full max-w-sm md:space-x-3 space-y-3 md:space-y-0 justify-center">
@@ -93,7 +90,7 @@ const RolTable: React.FC = () => {
                   value={searchTerm}
                   onChange={handleSearchChange}
                   className="rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                  placeholder="Buscar rol..."
+                  placeholder="Buscar Departamento..."
                 />
               </div>
               <button
@@ -113,13 +110,10 @@ const RolTable: React.FC = () => {
               <thead>
                 <tr>
                   <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Nombre Rol
+                    Nombre del Departamento
                   </th>
                   <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Descripción
-                  </th>
-                  <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                    Estado
+                    Código del Departamento
                   </th>
                   <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Acciones
@@ -127,55 +121,40 @@ const RolTable: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {rolesToDisplay.map((role: any) => (
-                  <tr key={role.id}>
+                {departmentsToDisplay.map((department: any) => (
+                  <tr key={department.id}>
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                       <div className="flex items-center">
                         <div className="ml-3">
                           <p className="text-gray-900 whitespace-no-wrap">
-                            {role.typeOfRole}
+                            {department.Department}
                           </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                       <p className="text-gray-900 whitespace-no-wrap">
-                        {role.description}
+                        {department.codeDepartment}
                       </p>
                     </td>
+
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                      <span
-                        className={`relative inline-block px-3 py-1 font-semibold ${
-                          role.isActive ? "text-green-900" : "text-red-900"
-                        } leading-tight`}
-                      >
-                        <span className="relative">
-                          {role.isActive ? "Activo" : "Inactivo"}
-                        </span>
-                      </span>
-                    </td>
-                    <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                      <button
-                        onClick={() => openEditModal(role)}
-                        className="text-green-600 hover:text-green-900 mx-1"
-                      >
+                      <button className="text-green-600 hover:text-green-900 mx-1">
                         <PencilIcon size={16} />
                       </button>
                       <button
-                        onClick={() =>
-                          toggleRolStatus(role.id?.toString() || "0")
-                        }
+                        onClick={() => toggleDepartmentsStatus(department.id)}
                         className={`${
-                          role.isActive
+                          department.isActive
                             ? "text-green-600 hover:text-green-900"
                             : "text-red-600 hover:text-red-900"
                         } transition-colors duration-200`}
-                        title={role.isActive ? "Desactivar" : "Activar"}
+                        title={department.isActive ? "Desactivar" : "Activar"}
                         disabled={loading}
                       >
                         {loading ? (
                           <span>Cargando...</span>
-                        ) : role.isActive ? (
+                        ) : department.isActive ? (
                           <ToggleRight size={16} />
                         ) : (
                           <ToggleLeft size={16} />
@@ -190,20 +169,20 @@ const RolTable: React.FC = () => {
             <div className="px-5 py-3 bg-gray-200 flex items-center justify-between">
               <div className="text-sm">
                 <span className="font-semibold">
-                  Total roles: {roles.length}
+                  Total departamentos: {departments.length}
                 </span>
               </div>
               <div className="flex items-center">
                 <label
-                  htmlFor="roles-per-page"
+                  htmlFor="departments-per-page"
                   className="mr-2 text-sm font-semibold"
                 >
-                  Roles por página:
+                  Departamentos por página:
                 </label>
                 <select
-                  id="roles-per-page"
+                  id="departments-per-page"
                   className="border border-gray-300 rounded-lg p-2 text-sm"
-                  onChange={handleRolesPerPageChange}
+                  onChange={handleDepartmentsPerPageChange}
                 >
                   <option value={10}>10</option>
                   <option value={25}>25</option>
@@ -220,7 +199,9 @@ const RolTable: React.FC = () => {
                 </button>
                 <button
                   onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage * rolesPerPage >= roles.length}
+                  disabled={
+                    currentPage * departmentsPerPage >= departments.length
+                  }
                   className="p-2"
                 >
                   Siguiente
@@ -230,15 +211,8 @@ const RolTable: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <RolEdit
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        role={roleToEdit}
-        onSave={saveRole}
-      />
     </div>
   );
 };
 
-export default RolTable;
+export default DepartmentsTable;

@@ -1,9 +1,10 @@
-import { Home, User } from "lucide-react";
+import { Bolt, Home, User } from "lucide-react";
 import UserForm from "../componets/User/UserForm";
 import SubPage2 from "../pages/SubPage2";
 import UserTablePage from "../pages/UsersPages/UserTablePage";
 import { RouteConfig } from "./RouteConfig";
 import RolFormPage from "../pages/Rol/RolForm";
+import DepartmentsFormsPage from "../pages/Department/DepartmentsForms";
 
 export const AppRoutes: RouteConfig[] = [
   {
@@ -40,17 +41,17 @@ export const AppRoutes: RouteConfig[] = [
   {
     path: "/globales",
     name: "Mantenimiento",
-    icon: <User />,
+    icon: <Bolt />,
     children: [
       {
-        path: "/globales/rolusuario",
+        path: "/globales/rolcreacion",
         name: "Creación de Rol ",
         component: <RolFormPage />,
       },
       {
-        path: "/globales/listadeusuarios",
-        name: "Lista de Usuarios",
-        component: <UserTablePage />,
+        path: "/globales/cuidadcreacion",
+        name: "Creación de Departamento ",
+        component: <DepartmentsFormsPage />,
       },
     ],
   },

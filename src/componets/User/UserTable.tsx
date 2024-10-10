@@ -42,7 +42,7 @@ const UserTable: React.FC = () => {
       setIsModalOpen(false);
       setSelectedUser(null);
     };
-  
+
     const handleUserUpdate = (updatedUser: UserPost) => {
       // Lógica para manejar la actualización del usuario, si es necesario
       console.log('User updated:', updatedUser);
