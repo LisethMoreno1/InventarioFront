@@ -1,33 +1,36 @@
 import { useFormik } from "formik";
 import { DepartmentsFormSchema } from "../../Schemas/Department/departmentsSchema";
-import { DepartmentsTypes } from "../../types/Department/DepartmentType";
-import { postDepartments } from "../../services/DepartmentService/departmentPostServices";
+import { useDepartmentFormStore } from "../../store/Department/DepartmentStore";
 
 export const useDepartmentForm = () => {
+  const { department, setDepartment, submitDepartment } =
+    useDepartmentFormStore();
+
   const formik = useFormik({
     initialValues: {
-      Department: "",
-      codeDepartment: "",
+      Department: department.Department,
+      codeDepartment: department.codeDepartment,
     },
     validationSchema: DepartmentsFormSchema,
 
-    
     onSubmit: async (values, { resetForm }) => {
-      try {
-        const departmentsRequest: DepartmentsTypes = {
-          id: 0,
-          Department: values.Department,
-          codeDepartment: values.codeDepartment,
-        };
-        const response = await postDepartments(departmentsRequest);
-        console.log(response, "😴😴😴");
-        alert("Departamento registrado exitosamente");
-        resetForm();
-      } catch (error: any) {
-        alert(
-          `Hubo un problema al registrar el Departamento: ${error.message}`
-        );
-      }
+      setDepartment({
+        Department: values.Department,
+        codeDepartment: values.codeDepartment,
+      });
+
+      // Submitea el formulario a través del store
+      await submitDepartment(
+        () => {
+          alert("Departamento registrado exitosamente");
+          resetForm();
+        },
+        (errorMessage) => {
+          alert(
+            `Hubo un problema al registrar el Departamento: ${errorMessage}`
+          );
+        }
+      );
     },
   });
 

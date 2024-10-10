@@ -61,7 +61,7 @@ const RolTable: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const saveRole = (updatedRole: id) => {
+  const saveRole = (updatedRole: any) => {
     console.log("Rol actualizado:", updatedRole);
     closeModal();
   };

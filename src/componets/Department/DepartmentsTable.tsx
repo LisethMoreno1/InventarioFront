@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import useDepartment from "../../hooks/Department/useDepartment";
 import { PencilIcon, SearchIcon, ToggleLeft, ToggleRight } from "lucide-react";
 import { deleteDepartments } from "../../services/DepartmentService/departmentDeleteService";
+import { DepartmentsTypes } from "../../types/Department/DepartmentType";
 
 const DepartmentsTable: React.FC = () => {
   const { departments, loading, error } = useDepartment();
@@ -18,9 +19,9 @@ const DepartmentsTable: React.FC = () => {
   const filteredDepartments = useMemo(() => {
     const filtered = departments.filter(
       (department) =>
-        department.Department
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
+        department.Department.toLowerCase().includes(
+          searchTerm.toLowerCase()
+        ) ||
         department.codeDepartment
           .toLowerCase()
           .includes(searchTerm.toLowerCase())
@@ -51,9 +52,9 @@ const DepartmentsTable: React.FC = () => {
     console.log("Página actualizada:", pageNumber);
   };
 
-  const toggleDepartmentsStatus = async (id: number) => {
+  const toggleDepartmentsStatus = async (department: DepartmentsTypes) => {
     try {
-      const response = await deleteDepartments(id);
+      const response = await deleteDepartments(department);
       console.log("Departamento eliminado con éxito:", response);
     } catch (error) {
       console.error("Error al eliminar el Departamento:", error);

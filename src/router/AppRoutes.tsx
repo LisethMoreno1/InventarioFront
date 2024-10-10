@@ -5,6 +5,7 @@ import UserTablePage from "../pages/UsersPages/UserTablePage";
 import { RouteConfig } from "./RouteConfig";
 import RolFormPage from "../pages/Rol/RolForm";
 import DepartmentsFormsPage from "../pages/Department/DepartmentsForms";
+import CityFormPage from "../pages/City/CityForm";
 
 export const AppRoutes: RouteConfig[] = [
   {
@@ -49,9 +50,14 @@ export const AppRoutes: RouteConfig[] = [
         component: <RolFormPage />,
       },
       {
-        path: "/globales/cuidadcreacion",
+        path: "/globales/departamentocreacion",
         name: "Creación de Departamento ",
         component: <DepartmentsFormsPage />,
+      },
+      {
+        path: "/globales/cuidadcreacion",
+        name: "Creación de ciudad ",
+        component: <CityFormPage />,
       },
     ],
   },
