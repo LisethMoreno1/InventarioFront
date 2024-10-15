@@ -1,8 +1,10 @@
+import {
+  PencilIcon,
+  SearchIcon,
+  Trash2
+} from "lucide-react";
 import { useMemo, useState } from "react";
-import { PencilIcon, SearchIcon, ToggleLeft, ToggleRight } from "lucide-react";
 import { useCityForm } from "../../hooks/City/useCityForm";
-import CityType from "../../types/City/CityType";
-import { deleteCity } from "../../services/CityService/cityDeleteService";
 
 const CityTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -10,7 +12,7 @@ const CityTable: React.FC = () => {
   const [citiesPerPage, setCitiesPerPage] = useState(10);
 
   // Assume these come from the custom hook
-  const { cities, loading, error } = useCityForm();
+  const { cities, loading, error, deleteCity } = useCityForm();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -19,12 +21,17 @@ const CityTable: React.FC = () => {
   };
 
   const filteredCities = useMemo(() => {
-    return cities.filter(
-      (city) =>
-        city.cities.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        city.codeCities.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        city.departmentId.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    return cities.filter((city: any) => {
+      const cityName = city.cities?.toLowerCase() || "";
+      const cityCode = city.codeCities?.toLowerCase() || "";
+      const departmentName = city.department?.Department?.toLowerCase() || "";
+
+      return (
+        cityName.includes(searchTerm.toLowerCase()) ||
+        cityCode.includes(searchTerm.toLowerCase()) ||
+        departmentName.includes(searchTerm.toLowerCase())
+      );
+    });
   }, [cities, searchTerm]);
 
   const citiesToDisplay = useMemo(() => {
@@ -47,13 +54,8 @@ const CityTable: React.FC = () => {
     console.log("Página actualizada:", pageNumber);
   };
 
-  const toggleCityStatus = async (city: CityType) => {
-    try {
-      const response = await deleteCity(city);
-      console.log("Ciudad eliminada con éxito:", response);
-    } catch (error) {
-      console.error("Error al eliminar la ciudad:", error);
-    }
+  const handleDeleteCity = (cityId : number) => {
+    deleteCity(cityId);
   };
 
   if (loading) {
@@ -109,12 +111,15 @@ const CityTable: React.FC = () => {
                     Código de la Ciudad
                   </th>
                   <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Código del Departamento
+                  </th>
+                  <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Acciones
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {citiesToDisplay.map((city) => (
+                {citiesToDisplay.map((city: any) => (
                   <tr key={city.id}>
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                       <p className="text-gray-900 whitespace-no-wrap">
@@ -128,27 +133,15 @@ const CityTable: React.FC = () => {
                     </td>
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                       <p className="text-gray-900 whitespace-no-wrap">
-                        {city.departmentId}
+                        {city.department?.Department}
                       </p>
                     </td>
                     <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                       <button className="text-green-600 hover:text-green-900 mx-1">
                         <PencilIcon size={16} />
                       </button>
-                      <button
-                        onClick={() => toggleCityStatus(city)}
-                        className={`${
-                          city.isActive
-                            ? "text-green-600 hover:text-green-900"
-                            : "text-red-600 hover:text-red-900"
-                        } transition-colors duration-200`}
-                        title={city.isActive ? "Desactivar" : "Activar"}
-                      >
-                        {city.isActive ? (
-                          <ToggleRight size={16} />
-                        ) : (
-                          <ToggleLeft size={16} />
-                        )}
+                      <button  onClick={() => handleDeleteCity(city.id)}>
+                        <Trash2 size={16} style={{ color: "red" }} />
                       </button>
                     </td>
                   </tr>

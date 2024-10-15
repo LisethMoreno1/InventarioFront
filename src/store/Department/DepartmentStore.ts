@@ -41,7 +41,7 @@ export const useDepartmentFormStore = create<DepartmentFormStore>((set) => ({
       const response = await postDepartments(
         useDepartmentFormStore.getState().department
       );
-      console.log(response, "😴😴😴");
+
       set({
         loading: false,
         department: { id: 0, Department: "", codeDepartment: "" },

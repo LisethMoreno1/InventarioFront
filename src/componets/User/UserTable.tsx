@@ -32,25 +32,7 @@ const UserTable: React.FC = () => {
   const genreId = 1; // Proporcionar el valor real
   const roleId = 1; // Proporcionar el valor real
 
-  /* EDITAR USUARIO */
-  /*   const handleEditClick = (user: UserGet) => {
-      const userPost = adaptUserGetToUserPost(user);
-      setSelectedUser(userPost);
-      setIsModalOpen(true);
-    };
-    const handleCloseModal = () => {
-      setIsModalOpen(false);
-      setSelectedUser(null);
-    };
 
-    const handleUserUpdate = (updatedUser: UserPost) => {
-      // Lógica para manejar la actualización del usuario, si es necesario
-      console.log('User updated:', updatedUser);
-      handleCloseModal(); // Cierra el modal después de la actualización
-    }; */
-
-  /*  VER DETALLES
-   */
 
   const handleViewDetails = (user: UserGet) => {
     setSelectedUser(user);
@@ -69,7 +51,7 @@ const UserTable: React.FC = () => {
     setLoading(true); 
     try {
       const response = await deleteUsers(userId, isActive ? 0 : 1);
-      console.log('Usuario actualizado con éxito:', response);
+  
 
     } catch (error) {
       console.error('Error al actualizar el usuario:', error);

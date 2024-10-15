@@ -1,11 +1,11 @@
 import config from "../../config/config.json";
-import CityType from "../../types/City/CityType";
 
 const baseUrl = config.baseUrl;
 
 
+
 /* METODO DELETE */
-export const deleteCity  = async (id: CityType) => {
+export const deleteCityService = async (id: number) => {
   const response = await fetch(`${baseUrl}/cities/${id}`, {
     method: 'DELETE',
     headers: {
@@ -14,10 +14,11 @@ export const deleteCity  = async (id: CityType) => {
   });
 
   if (!response.ok) {
-    throw new Error('La respuesta de la red no era correcta');
+    // Si hay un error, podrías intentar extraer un mensaje del cuerpo de la respuesta
+    const errorText = await response.text();
+    throw new Error(`La respuesta de la red no era correcta: ${errorText}`);
   }
 
-  return await response.json();
+  // Retorna un objeto vacío si no hay respuesta JSON
+  return response.status === 204 ? {} : await response.json();
 };
-
-

@@ -2,17 +2,15 @@ import React from "react";
 import { useCityForm } from "../../hooks/City/useCityForm";
 import { useCityStore } from "../../store/City/CityStore";
 
-
 const CityForm: React.FC = () => {
   const { formik, departments } = useCityForm();
-  const addCity = useCityStore((state : any) => state.addCity);
+  const addCity = useCityStore((state: any) => state.addCity);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     formik.handleSubmit();
     addCity(formik.values); // Agregar la ciudad a la store
   };
-
   const inputClasses =
     "w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
   const labelClasses = "block mb-2 text-sm font-medium text-gray-700";

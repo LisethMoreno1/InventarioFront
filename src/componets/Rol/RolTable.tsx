@@ -42,7 +42,6 @@ const RolTable: React.FC = () => {
   const toggleRolStatus = async (id: number) => {
     try {
       const response = await deleteRoles(id);
-      console.log("Rol eliminado con éxito:", response);
     } catch (error) {
       console.error("Error al eliminar el rol:", error);
     }

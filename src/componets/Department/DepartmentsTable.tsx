@@ -1,11 +1,13 @@
+import {
+  PencilIcon,
+  SearchIcon,
+  Trash2
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import useDepartment from "../../hooks/Department/useDepartment";
-import { PencilIcon, SearchIcon, ToggleLeft, ToggleRight } from "lucide-react";
-import { deleteDepartments } from "../../services/DepartmentService/departmentDeleteService";
-import { DepartmentsTypes } from "../../types/Department/DepartmentType";
 
 const DepartmentsTable: React.FC = () => {
-  const { departments, loading, error } = useDepartment();
+  const { departments, loading, error, deleteDepartments } = useDepartment();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [departmentsPerPage, setDepartmentsPerPage] = useState(10);
@@ -52,13 +54,8 @@ const DepartmentsTable: React.FC = () => {
     console.log("Página actualizada:", pageNumber);
   };
 
-  const toggleDepartmentsStatus = async (department: DepartmentsTypes) => {
-    try {
-      const response = await deleteDepartments(department);
-      console.log("Departamento eliminado con éxito:", response);
-    } catch (error) {
-      console.error("Error al eliminar el Departamento:", error);
-    }
+  const handleDeleteDepartment = (departmentsId: number) => {
+    deleteDepartments(departmentsId);
   };
 
   if (loading) {
@@ -144,22 +141,9 @@ const DepartmentsTable: React.FC = () => {
                         <PencilIcon size={16} />
                       </button>
                       <button
-                        onClick={() => toggleDepartmentsStatus(department.id)}
-                        className={`${
-                          department.isActive
-                            ? "text-green-600 hover:text-green-900"
-                            : "text-red-600 hover:text-red-900"
-                        } transition-colors duration-200`}
-                        title={department.isActive ? "Desactivar" : "Activar"}
-                        disabled={loading}
+                        onClick={() => handleDeleteDepartment(department.id)}
                       >
-                        {loading ? (
-                          <span>Cargando...</span>
-                        ) : department.isActive ? (
-                          <ToggleRight size={16} />
-                        ) : (
-                          <ToggleLeft size={16} />
-                        )}
+                        <Trash2 size={16} style={{ color: "red" }} />
                       </button>
                     </td>
                   </tr>

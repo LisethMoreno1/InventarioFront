@@ -1,20 +1,21 @@
-import { useState, useEffect } from "react";
 import { useFormik } from "formik";
+import { useEffect, useState } from "react";
 import { CityFormSchema } from "../../Schemas/City/CitySchema";
+import { deleteCityService } from "../../services/CityService/cityDeleteService";
+import { getCity } from "../../services/CityService/cityGetService"; // Asegúrate de que postCity esté importada
+import { postCity } from "../../services/CityService/cityPostService";
 import { getDepartments } from "../../services/DepartmentService/departmentGetService";
+import CityType from "../../types/City/CityType";
 
 export const useCityForm = () => {
-  const [city, setCity] = useState({
-    id: 0,
-    cities: "",
-    codeCities: "",
-    departmentId: "",
-  });
-
+  const [cities, setCities] = useState<CityType[]>([]);
   const [departments, setDepartments] = useState<
     { id: number; Department: string }[]
   >([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Obtener departamentos
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
@@ -27,25 +28,46 @@ export const useCityForm = () => {
     fetchDepartments();
   }, []);
 
+  // Obtener ciudades
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        setLoading(true);
+        const data = await getCity();
+        setCities(data);
+      } catch (err) {
+        setError("Error al cargar las ciudades");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCities();
+  }, []);
+
   const formik = useFormik({
     initialValues: {
-      cities: city.cities,
-      codeCities: city.codeCities,
-      departmentId: city.departmentId,
+      cities: "",
+      codeCities: "",
+      departmentId: "",
     },
     validationSchema: CityFormSchema,
     onSubmit: async (values, { resetForm }) => {
-      setCity({
-        id: 0,
-        cities: values.cities,
-        codeCities: values.codeCities,
-        departmentId: values.departmentId,
-      });
-
       try {
-        console.log("Ciudad registrada:", values);
+        const cityRequest: CityType = {
+          cities: values.cities,
+          codeCities: values.codeCities,
+          departmentId: Number(values.departmentId), // Asegúrate de convertir el ID a número
+        };
+
+        const response = await postCity(cityRequest);
+      
         alert("Ciudad registrada exitosamente");
         resetForm();
+
+        // Opcional: vuelve a cargar la lista de ciudades después de crear una nueva
+        const updatedCities = await getCity();
+        setCities(updatedCities);
       } catch (errorMessage) {
         console.error("Error al registrar la ciudad", errorMessage);
         alert(`Hubo un problema al registrar la ciudad: ${errorMessage}`);
@@ -53,5 +75,17 @@ export const useCityForm = () => {
     },
   });
 
-  return { formik, departments };
+  const deleteCity = async (cityId: number) => {
+    try {
+      const response = await deleteCityService(cityId);
+      console.log("Ciudad eliminada con éxito:", response);
+        setCities((prevCities) => prevCities.filter(city => city.id !== cityId));
+    } catch (error) {
+      console.error("Error al eliminar la ciudad:", error);
+    }
+  };
+  
+  
+
+  return { formik, departments, cities, loading, error , deleteCity };
 };
